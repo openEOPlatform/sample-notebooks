@@ -1,7 +1,7 @@
 ---
-title: "ISDE12_2021: Introduction to openEO platform via the R-Client"
+title: "PhiWeek_2021: Introduction to openEO platform via the R-Client"
 author: "peterjames.zellner@eurac.edu"
-date: "05/07/2021"
+date: "15/10/2021"
 output:
   html_document:
     toc: true
@@ -9,7 +9,7 @@ output:
     toc_float: TRUE
 ---
 
-![](images/openEO-platform.png "openEO_platform")
+![](https://webassets.eurac.edu/31538/1629894586-open-eo-platform.png?fit=max&fm=jpg&w=1000)
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -26,13 +26,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Topics
 
 -   Installation
-
 -   Authentication and Log-In
-
 -   Exploring the Backend (widgets, using metadata)
-
 -   Example Process - Usability R (tidyverse, geospatial)
-
 -   Outlook User Defined Funtcions R-UDF
 
 ## Install the openEO R-Client
