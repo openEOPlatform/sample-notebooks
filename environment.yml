@@ -1,0 +1,28 @@
+name: openeo_platform
+channels:
+  - conda-forge
+  - pyviz
+dependencies:
+  - python=3.7
+  - numpy
+  - ipyleaflet
+  - xarray
+  - rioxarray
+  - rasterio
+  - matplotlib
+  - traitlets
+  - shapely
+  - bqplot
+  - scipy
+  - notebook
+  - tqdm
+  - hvplot
+  - geoviews
+  - iris
+  - xesmf
+  - h5netcdf
+  - pip
+  - pip:
+    - openeo
+    - netcdf4
+    - xarray_leaflet
