@@ -9,7 +9,9 @@ output:
     toc_float: TRUE
 ---
 
-![](https://webassets.eurac.edu/31538/1629894586-open-eo-platform.png?fit=max&fm=jpg&w=1000)
++-----------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ![](https://webassets.eurac.edu/31538/1629894586-open-eo-platform.png?fit=max&fm=jpg&w=1000){width="400"} | ![](https://www.eurac.edu/_next/image?url=https%253A%252F%252Fwebassets.eurac.edu%252F31538%252F1634027841-logoproject.png%253Fauto%253Dformat%2526fit%253Dclip%2526fm%253Djpg%2526h%253D300%2526w%253D300&w=640&q=85){width="116"} |
++-----------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -37,7 +39,7 @@ The openEO R-Client is currently available on the [openEO github repository](htt
 
 ```{r install, eval=FALSE}
 remotes::install_github(repo="Open-EO/openeo-r-client",
-                        ref="develop", dependencies=TRUE)
+                        ref="master", dependencies=TRUE) # ref="develop"
 packageVersion("openeo")
 ```
 
@@ -73,8 +75,8 @@ Unfortunately, you need to request a Client ID and a Client Secret for this from
 
 ```{r login_oidc, eval=FALSE}
 creds_rclient = read.csv2("/home/pzellner@eurac.edu/pwd/openeo_platform_rclient.pwd")
-client_id = creds_rclient$client_id "request at openeo platform support" 
-secret = creds_rclient$secret "request at openeo platform support" 
+client_id = creds_rclient$client_id # "request at openeo platform support" 
+secret = creds_rclient$secret # "request at openeo platform support" 
 openeo::login(login_type = "oidc", 
               provider = "egi", 
               config = list(client_id = client_id, secret = secret))
@@ -103,7 +105,8 @@ To use the collection metadata for further coding you can use `decribe_collectio
 
 ```{r describe_collection}
 coll_meta = openeo::describe_collection("SENTINEL2_L1C_SENTINELHUB")
-coll_meta$extent$spatial # you could use this to draw a bbox of the collection
+ext = coll_meta$extent$spatial # you could use this to draw a bbox of the collection
+st_bbox(obj = c(xmin = ext[1], ymin = ext[2], xmax = ext[3], ymax = ext[4]), crs = 4326) %>% mapview()
 ```
 
 ## Discover processes
@@ -142,14 +145,9 @@ First define an area of interest interactively (either a point or area)
 # this is interactive
 pnts = mapedit::drawFeatures()
 
-# # this is static for points
-# pnts = data.frame(x = 13.09884, y = 47.82496)
-# pnts = st_as_sf(pnts, coords = c("x", "y"), crs = st_crs(4326))
-
-# this is static for areas
-# pnts = c(xmin = 13.09741, ymin = 47.82417, xmax = 13.10026, ymax = 47.82565)
+# this is static for areas - Frascati
+# pnts = c(xmin = 12.64805, ymin = 41.80398, xmax = 12.6517, ymax = 41.80603)
 # pnts = st_bbox(pnts, crs = st_crs(4326))
-
 mapview(pnts)
 
 bbox = st_bbox(pnts)
@@ -252,7 +250,7 @@ print(jsonlite::toJSON(graph_info, pretty = TRUE, auto_unbox = TRUE))
 synchronous call (result is computed directly)
 
 ```{r out_name}
-out_name =  "/home/pzellner@eurac.edu/git_projects/SRR1_notebooks/public_demo/data/r_ndvi_mnth_int.nc"
+out_name =  "/home/pzellner@eurac.edu/git_projects/sample-notebooks/r_ndvi_mnth_int.nc"
 ```
 
 ```{r compute_result, eval=FALSE}
@@ -283,12 +281,10 @@ plot some time slices (select and deselect in the viewer)
 
 ```{r plot_area}
 brks = seq(-0, 1, 0.1)
-mapview(ndvi %>% slice("t", 1), at = brks) + 
-  mapview(ndvi %>% slice("t", 3), at = brks) + 
-  mapview(ndvi %>% slice("t", 5), at = brks) +
+mapview(ndvi %>% slice("t", 3), at = brks) + 
+  mapview(ndvi %>% slice("t", 5), at = brks) + 
   mapview(ndvi %>% slice("t", 7), at = brks) +
-  mapview(ndvi %>% slice("t", 9), at = brks) +
-  mapview(ndvi %>% slice("t", 11), at = brks)
+  mapview(ndvi %>% slice("t", 9), at = brks)
 ```
 
 get a point for plotting a pixel timeseries
@@ -298,7 +294,7 @@ get a point for plotting a pixel timeseries
 pixel = mapedit::drawFeatures()
 
 # static assignment
-# pixel = data.frame(x = 13.09884, y = 47.82496)
+# pixel = data.frame(x = 12.64956, y = 41.80526)
 # pixel = st_as_sf(pixel, coords = c("x", "y"), crs = st_crs(4326))
 
 mapview(pixel) + mapview(st_bbox(ndvi))
@@ -312,7 +308,7 @@ pixel = st_transform(x = pixel, crs = st_crs(ndvi))
 ndvi_ts = ndvi[pixel]
 
 # generate a data frame from the values and dates
-ndvi_ts_df = data.frame(value = ndvi_ts %>% pull() %>% c(), 
+ndvi_ts_df = data.frame(value = ndvi_ts %>% pull() %>% c() %>% as.vector(), 
                         dates = as.Date(st_get_dimension_values(ndvi_ts, "t")))
 
 # plot the timeseries
