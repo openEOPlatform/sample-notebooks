@@ -9,9 +9,9 @@ output:
     toc_float: TRUE
 ---
 
-|                                                                                                           |                                                                                                                                                                                                                                     |
-|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![](https://webassets.eurac.edu/31538/1629894586-open-eo-platform.png?fit=max&fm=jpg&w=1000){width="400"} | ![](https://www.eurac.edu/_next/image?url=https%253A%252F%252Fwebassets.eurac.edu%252F31538%252F1634027841-logoproject.png%253Fauto%253Dformat%2526fit%253Dclip%2526fm%253Djpg%2526h%253D300%2526w%253D300&w=640&q=85){width="116"} |
+![](https://webassets.eurac.edu/31538/1629894586-open-eo-platform.png?fit=max&fm=jpg&w=1000){width="400"}
+
+![](https://www.eurac.edu/_next/image?url=https%253A%252F%252Fwebassets.eurac.edu%252F31538%252F1634027841-logoproject.png%253Fauto%253Dformat%2526fit%253Dclip%2526fm%253Djpg%2526h%253D300%2526w%253D300&w=640&q=85){width="116"}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
