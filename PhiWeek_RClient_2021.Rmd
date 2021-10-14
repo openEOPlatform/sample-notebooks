@@ -9,9 +9,9 @@ output:
     toc_float: TRUE
 ---
 
-+-----------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                                                           |                                                                                                                                                                                                                                     |
+|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ![](https://webassets.eurac.edu/31538/1629894586-open-eo-platform.png?fit=max&fm=jpg&w=1000){width="400"} | ![](https://www.eurac.edu/_next/image?url=https%253A%252F%252Fwebassets.eurac.edu%252F31538%252F1634027841-logoproject.png%253Fauto%253Dformat%2526fit%253Dclip%2526fm%253Djpg%2526h%253D300%2526w%253D300&w=640&q=85){width="116"} |
-+-----------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -97,7 +97,7 @@ names(openeo::list_collections()) %>% as.data.frame()
 
 To get more details you can use the `collection_viewer()` which opens the description of the collection in the Viewer pane
 
-```{r collection_viewer}
+```{r collection_viewer, eval=FALSE}
 collection_viewer("SENTINEL2_L1C_SENTINELHUB")
 ```
 
@@ -119,7 +119,7 @@ names(list_processes()) %>% as.data.frame()
 
 To get detailed information about a process you can again use the `process_viewer()`
 
-```{r process_viewer}
+```{r process_viewer, eval=FALSE}
 process_viewer("atmospheric_correction")
 ```
 
@@ -139,7 +139,7 @@ describe_process("atmospheric_correction")
 
 ## Definitions
 
-First define an area of interest interactively (either a point or area)
+First define an area of interest interactively (either a point or area). You can also use multiple features and loop through them later on.
 
 ```{r aoi_process}
 # this is interactive
@@ -188,7 +188,7 @@ data = p$load_collection(id = collection,
   
 ```
 
-Atmospherical Correction
+Atmospherical Correction. The different processes can be chained using the pipe `%>%`.
 
 ```{r atmopspherical_correction, eval=FALSE}
 boa_corr = p$atmospheric_correction(data = data, method = "smac") # or use "iCor"
@@ -206,7 +206,7 @@ ndvi_calc = p$reduce_dimension(data = boa_corr,
 
 ```
 
-Aggregate to temporal periods
+Aggregate to temporal periods.
 
 ```{r temporal_period, eval=FALSE}
 # process_viewer("aggregate_temporal")
@@ -242,7 +242,7 @@ No processing has happened so far. Only the workflow/process graph has been defi
 
 ```{r vis_graph, eval=FALSE}
 graph_info = create_user_process(result, id = "test", submit = FALSE)
-print(jsonlite::toJSON(graph_info, pretty = TRUE, auto_unbox = TRUE))
+parse_graph(graph_info)
 ```
 
 ## Compute the result
