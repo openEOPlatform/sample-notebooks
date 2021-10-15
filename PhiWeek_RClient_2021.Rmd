@@ -1,6 +1,9 @@
 ---
 title: "PhiWeek_2021: Introduction to openEO platform via the R-Client"
-author: "peterjames.zellner@eurac.edu"
+author: 
+ - Peter Zellner, Eurac Research
+ - Florian Lahn, EFTAS
+ - Matthias Mohr, University of Münster
 date: "15/10/2021"
 output:
   html_document:
@@ -31,7 +34,7 @@ knitr::opts_chunk$set(echo = TRUE)
 -   Authentication and Log-In
 -   Exploring the Backend (widgets, using metadata)
 -   Example Process - Usability R (tidyverse, geospatial)
--   Outlook User Defined Funtcions R-UDF
+-   Outlook User Defined Functions R-UDF
 
 ## Install the openEO R-Client
 
@@ -40,7 +43,8 @@ The openEO R-Client is currently available on the [openEO github repository](htt
 ```{r install, eval=FALSE}
 remotes::install_github(repo="Open-EO/openeo-r-client",
                         ref="master", dependencies=TRUE) # ref="develop"
-packageVersion("openeo")
+
+packageVersion("openeo") == '1.0.1'
 ```
 
 ## Useful libraries
@@ -80,7 +84,7 @@ secret = creds_rclient$secret # "request at openeo platform support"
 openeo::login(login_type = "oidc", 
               provider = "egi", 
               config = list(client_id = client_id, secret = secret))
-describe_account()
+#describe_account()
 ```
 
 # Discover the backend
@@ -319,3 +323,13 @@ plot_ts_plotly = plotly::ggplotly(plot_ts)
 plot_ts_plotly
 
 ```
+
+# UDF Outlook
+
+User defined functions (UDF) allow to run arbitrary R-Code on openEO platform.
+
+Main Concepts:
+
+-   Easy data access for local prototyping or training
+-   Refine R-Code to produce desired results
+-   Run R-Code in openEO platform on a larger scale
