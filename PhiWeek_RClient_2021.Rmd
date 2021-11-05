@@ -44,7 +44,7 @@ The openEO R-Client is currently available on the [openEO github repository](htt
 remotes::install_github(repo="Open-EO/openeo-r-client",
                         ref="master", dependencies=TRUE) # ref="develop"
 
-packageVersion("openeo") == '1.0.1'
+packageVersion("openeo") >= '1.0.1'
 ```
 
 ## Useful libraries
