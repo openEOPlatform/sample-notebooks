@@ -99,19 +99,13 @@ Once you're connected you can discover processes and collections. This gives you
 
 ## Discover collections
 
-The collections appear in the connections pane of R-Studio. You can also list them via `list_collections()` and retrieve some first info.
+The collections appear in the connections pane of R-Studio. You can also list them via `list_collections()` directly:
 
 ```{r list_collections}
-names(list_collections()) %>% as.data.frame()
+list_collections()
 ```
 
-For more interactivity you can use the `collection_viewer()` which opens the collection list the viewer pane.
-
-```{r collection_viewer, eval=FALSE}
-collection_viewer()
-```
-
-For visualizing collection metadata within a report, use `describe_collection()`.
+For the full metadata of a single collection, use `describe_collection()`.
 
 ```{r describe_collection}
 coll_meta = openeo::describe_collection("SENTINEL2_L1C_SENTINELHUB")
@@ -131,19 +125,7 @@ st_bbox(obj = c(xmin = ext[1], ymin = ext[2], xmax = ext[3], ymax = ext[4]), crs
 To get an overview of the available processes use `list_processes()`
 
 ```{r list_processes}
-names(list_processes()) %>% as.data.frame()
-```
-
-For more interactivity and ad-hoc help you can use the `process_viewer()` which opens the process list the viewer pane.
-
-```{r process_viewer, eval=FALSE}
-process_viewer()
-```
-
-`describe_process()` will render a specific process in a report.
-
-```{r describe_process}
-describe_process("reduce_dimension")
+list_processes()
 ```
 
 # Processing
@@ -179,8 +161,8 @@ Define the collection (data set), time range and bands.
 
 ```{r defs_process}
 collection = "SENTINEL2_L1C_SENTINELHUB"
-time_range = list("2018-01-01T00:00:00.000Z", 
-                  "2018-12-31T00:00:00.000Z")
+time_range = list("2018-01-01", 
+                  "2019-01-01")
 bands = c("B04", "B08", "CLP", "B09", "B8A", "B11",
           "sunAzimuthAngles", "sunZenithAngles", "viewAzimuthMean", "viewZenithMean")
 #bands = c("B04", "B08")
@@ -194,7 +176,6 @@ Start building the processing chain. First, load the available processes. You ca
 
 ```{r load_processes, eval=FALSE}
 p = processes()
-# names(p)
 ```
 
 Load the collection.
@@ -203,8 +184,7 @@ Load the collection.
 data = p$load_collection(id = collection, 
                          spatial_extent = bbox,
                          temporal_extent = time_range, 
-                         bands = bands) %>% 
-  p$atmospheric_correction(method = "smac")
+                         bands = bands)
   
 ```
 
@@ -261,8 +241,7 @@ result = p$save_result(data = ndvi_mnth, format="NetCDF")
 No processing has happened so far. Only the workflow/process graph has been defined.
 
 ```{r vis_graph, eval=FALSE}
-graph_info = create_user_process(result, id = "test", submit = FALSE)
-parse_graph(graph_info)
+toJSON(as(result, "Process"))
 ```
 
 ## Compute the result
@@ -270,7 +249,7 @@ parse_graph(graph_info)
 synchronous call (result is computed directly)
 
 ```{r out_name}
-out_name =  "/home/pzellner@eurac.edu/git_projects/sample-notebooks/r_ndvi_mnth_int.nc"
+out_name =  "r_ndvi_mnth_int.nc"
 ```
 
 ```{r compute_result, eval=FALSE}
