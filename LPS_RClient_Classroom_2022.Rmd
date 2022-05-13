@@ -63,6 +63,7 @@ library(sf)
 library(mapview)
 library(mapedit)
 library(dplyr)
+library(tibble)
 library(ggplot2)
 library(plotly)
 ```
@@ -160,11 +161,16 @@ bbox = list(west = bbox[[1]],
 Define the collection (data set), time range and bands.
 
 ```{r defs_process}
-collection = "SENTINEL2_L1C_SENTINELHUB"
+# only vito collections
+collection = "SENTINEL2_L1C_SENTINELHUB" # takes too long
+collection = "SENTINEL2_L1C" # for trying smac
+collection = "SENTINEL2_L2A" # only for Belgium
 time_range = list("2018-01-01", 
                   "2019-01-01")
 bands = c("B04", "B08", "CLP", "B09", "B8A", "B11",
           "sunAzimuthAngles", "sunZenithAngles", "viewAzimuthMean", "viewZenithMean")
+
+# The extensive list of bands is only needed if atmospheric correction is applied.
 #bands = c("B04", "B08")
 ```
 
@@ -184,13 +190,15 @@ Load the collection.
 data = p$load_collection(id = collection, 
                          spatial_extent = bbox,
                          temporal_extent = time_range, 
-                         bands = bands)
+                         bands = bands) 
+#, properties = list("eo:cloud_cover" = function(x){x < 35})) # for the whole scene, not the aoi
   
 ```
 
 Atmospherical Correction. The different processes can be chained using the pipe `%>%`.
 
 ```{r atmopspherical_correction, eval=FALSE}
+# takes too long, use only for L1C collections
 boa_corr = p$atmospheric_correction(data = data, method = "smac") # or use "iCor"
 ```
 
@@ -333,4 +341,46 @@ Retrieving the point timeseries could also be done via openEO platform directly.
 
 ## Demo
 
-# 
+```{r mapview_cog}
+library(leaflet)
+library(leafem)
+
+url = "https://georaster-layer-for-leaflet.s3.amazonaws.com/GHS_POP_E2015_GLOBE_R2019A_4326_9ss_V1_0.tif"
+url = "https://openeo.vito.be/openeo/1.0/jobs/7c7734ca-3e95-4128-9fac-4fba2f2d087d/results/assets/NmRlNWRiZjY5MjVkNjI5YzQ4N2EzMDhlZGQ5N2Q2ZWFiOTBhZTBjY2NkZTY2MmMzYTEyOTE1ZjRmMTlmMDE5MUBlZ2kuZXU%3D/fa73ae1745d5c50deb5eaa34c8dd66c8/openEO.tif?expires=1652966337"
+
+leaflet() %>% 
+  addTiles(group = "osm") %>% 
+  addProviderTiles("Esri.WorldImagery", group = "esri") %>%
+  addMapPane("cog", zIndex = 500) %>%
+  leafem:::addCOG(
+    url = url
+    , group = "cog-layer"
+    , opacity = 0.7
+    , options = list(pane = "cog")
+    , resolution = 96
+    , autozoom = TRUE
+    , colorOptions = colorOptions(
+      palette = hcl.colors(3, "Inferno")
+      , breaks = seq(0, 1, 0.2)
+      , domain = c(0, 100)
+      , na.color = "#ff00ff88"
+    )
+    # , pixelValuesToColorFn = JS(
+    #   "function (values) {
+    #          var scale = chroma.scale(['brown', 'orange', 'red']).domain([0,100,1000]);
+    #          var population = values[0];
+    #          if (population === -200) return;
+    #          if (population < 0) return;
+    #          return scale(population).hex();
+    #    }"
+    )
+  ) %>%
+  addMouseCoordinates() %>%
+  addLayersControl(
+    baseGroups = c("osm", "esri")
+    , overlayGroups = "cog-layer"
+  )
+
+
+
+```
