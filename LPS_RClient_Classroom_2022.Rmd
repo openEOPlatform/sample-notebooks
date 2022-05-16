@@ -148,6 +148,8 @@ pnts = mapedit::drawFeatures()
 
 # this is static for areas - Frascati
 # pnts = c(xmin = 12.64805, ymin = 41.80398, xmax = 12.6517, ymax = 41.80603)
+# this is static for areas - Bonn
+# pnts = c(xmin = 6.631536, ymin = 50.811346, xmax = 6.646557, ymax = 50.821710)
 # pnts = st_bbox(pnts, crs = st_crs(4326))
 mapview(pnts)
 
@@ -162,16 +164,15 @@ Define the collection (data set), time range and bands.
 
 ```{r defs_process}
 # only vito collections
-collection = "SENTINEL2_L1C_SENTINELHUB" # takes too long
-collection = "SENTINEL2_L1C" # for trying smac
+collection = "SENTINEL2_L1C_SENTINELHUB" # for atmospheric_correction, takes a while
 collection = "SENTINEL2_L2A" # only for Belgium
 time_range = list("2018-01-01", 
                   "2019-01-01")
-bands = c("B04", "B08", "CLP", "B09", "B8A", "B11",
-          "sunAzimuthAngles", "sunZenithAngles", "viewAzimuthMean", "viewZenithMean")
-
 # The extensive list of bands is only needed if atmospheric correction is applied.
-#bands = c("B04", "B08")
+# bands = c("B04", "B08", "CLP", "B09", "B8A", "B11",
+#           "sunAzimuthAngles", "sunZenithAngles", "viewAzimuthMean", "viewZenithMean")
+
+bands = c("B04", "B08")
 ```
 
 ## Build the processing chain
@@ -199,18 +200,18 @@ Atmospherical Correction. The different processes can be chained using the pipe 
 
 ```{r atmopspherical_correction, eval=FALSE}
 # takes too long, use only for L1C collections
-boa_corr = p$atmospheric_correction(data = data, method = "smac") # or use "iCor"
+# data = p$atmospheric_correction(data = data, method = "smac") # or use "iCor"
 ```
 
 Calculate NDVI. Reduce the "bands" dimension with the well known NDVI formula.
 
 ```{r calc_ndvi, eval=FALSE}
-ndvi_calc = p$reduce_dimension(data = boa_corr, 
-                               dimension = "bands", 
-                               reducer = function(data, context) {
-                                 red = data[1]
-                                 nir = data[2]
-                                 (nir-red)/(nir+red)})
+data = p$reduce_dimension(data = data, 
+                          dimension = "bands", 
+                          reducer = function(data, context) {
+                            red = data[1]
+                            nir = data[2]
+                            (nir-red)/(nir+red)})
 
 ```
 
@@ -229,27 +230,38 @@ intervals = list(c('2018-01-02', '2018-02-01'),
                  c('2018-08-01', '2018-09-01'),
                  c('2018-09-01', '2018-10-01'), 
                  c('2018-10-01', '2018-11-01'),
-                 c('2018-11-01', '2018-12-30'))
+                 c('2018-11-01', '2018-12-01'), 
+                 c('2018-12-01', '2018-12-30'))
 
 labels = lapply(intervals, function(x){x[[1]]}) %>% unlist() # create labels from list
 
-ndvi_mnth = p$aggregate_temporal(data = ndvi_calc,
-                                 intervals = intervals,
-                                 reducer = function(data, context){p$median(data)},
-                                 labels = labels,
-                                 dimension = "t")
+data = p$aggregate_temporal(data = data,
+                            intervals = intervals,
+                            reducer = function(data, context){p$median(data)},
+                            labels = labels,
+                            dimension = "t")
+```
+
+Alternatively, calculate the yearly mean.
+
+```{r temporal_mean, eval=FALSE}
+# data = p$reduce_dimension(data = data, 
+#                           reducer = function(data, context){p$mean(data)},
+#                           dimension = "t")
 ```
 
 Save the result.
 
 ```{r save_result, eval=FALSE}
-result = p$save_result(data = ndvi_mnth, format="NetCDF")
+result = p$save_result(data = data, format="NetCDF")
 ```
 
 No processing has happened so far. Only the workflow/process graph has been defined.
 
 ```{r vis_graph, eval=FALSE}
-toJSON(as(result, "Process"))
+#toJSON(as(result, "Process"))
+#process_viewer(as(result, "Process"))
+as(result, "Process")
 ```
 
 ## Compute the result
@@ -263,11 +275,33 @@ out_name =  "r_ndvi_mnth_int.nc"
 ```{r compute_result, eval=FALSE}
 a = Sys.time()
 compute_result(result,
-               format = "netCDF",
+               #format = "NetCDF",
                output_file = out_name, 
                con = con)
 b = Sys.time()-a
 b
+```
+
+For demo using COGs this should be available...
+
+```{r create_job, eval=FALSE}
+job = create_job(graph = result,
+                 title = out_name,
+                 description = out_name,
+                 format = "netCDF")
+
+start_job(job = job$id) # use the id of the job (job$id) to start the job
+job_list = list_jobs() # here you can see your jobs and their status
+
+
+result_obj = list_results(job = job$id)
+result_obj
+
+dwnld = download_results(job = job$id, 
+                         folder = "./") # adjust path here
+
+dwnld
+
 ```
 
 # Analyze Results
@@ -280,7 +314,7 @@ ndvi = read_ncdf(out_name)
 
 # check which projection your data has and assign it
 #system(paste0("gdalinfo ", out_name))
-st_crs(ndvi) = st_crs(32633)
+st_crs(ndvi) = st_crs(32632)
 
 # look at the time dimension
 stars::st_get_dimension_values(ndvi, "t")
@@ -293,20 +327,22 @@ brks = seq(-0, 1, 0.1)
 mapview(ndvi %>% slice("t", 3), at = brks) + 
   mapview(ndvi %>% slice("t", 5), at = brks) + 
   mapview(ndvi %>% slice("t", 7), at = brks) +
-  mapview(ndvi %>% slice("t", 9), at = brks)
+  mapview(ndvi %>% slice("t", 9), at = brks) + 
+  mapview(pnts)
 ```
 
 get a point for plotting a pixel timeseries
 
 ```{r get_pixel}
 # define a point
-pixel = mapedit::drawFeatures()
+pixel = mapedit::drawFeatures(mapview(pnts))
+# pixel = st_centroid(st_as_sf(st_as_sfc(pnts)))
 
 # static assignment
 # pixel = data.frame(x = 12.64956, y = 41.80526)
 # pixel = st_as_sf(pixel, coords = c("x", "y"), crs = st_crs(4326))
 
-mapview(pixel) + mapview(st_bbox(ndvi))
+mapview(pixel) + mapview(pnts) + mapview(st_bbox(ndvi))
 ```
 
 subset to a point and plot a pixel time series
@@ -333,7 +369,7 @@ Retrieving the point timeseries could also be done via openEO platform directly.
 
 # Todo:
 
-## Viewing COGs (mapview -\> try)
+## Viewing COGs (mapview -\> try) -\> batch job
 
 ## Compare to Webeditor
 
