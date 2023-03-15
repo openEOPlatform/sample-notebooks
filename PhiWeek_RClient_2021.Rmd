@@ -37,14 +37,12 @@ knitr::opts_chunk$set(echo = TRUE)
 -   Outlook User Defined Functions R-UDF
 
 ## Install the openEO R-Client
-
-The openEO R-Client is currently available on the [openEO github repository](https://github.com/Open-EO/openeo-r-client). It can be installed via `remotes::install_github()`. To have the most up-to-date functionality select the develop version.
+The openEO R-Client is now available on CRAN. The latest stable version can be installed via `install.packages("openeo")`.
+In case you want to use a specific version of the R-Client you can install it from the [openEO github repository](https://github.com/Open-EO/openeo-r-client). It can be installed via `remotes::install_github()`. For the dev verstion set `remotes::install_gitub(remotes::install_github(repo="Open-EO/openeo-r-client",ref="develop", dependencies=TRUE)`.
 
 ```{r install, eval=FALSE}
-remotes::install_github(repo="Open-EO/openeo-r-client",
-                        ref="master", dependencies=TRUE) # ref="develop"
-
-packageVersion("openeo") == '1.0.1'
+install.packages("openeo")
+packageVersion("openeo") >= '1.0.1'
 ```
 
 ## Useful libraries

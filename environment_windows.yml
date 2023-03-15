@@ -1,0 +1,23 @@
+name: openeo_platform_windows
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - numpy
+  - xarray
+  - rioxarray
+  - rasterio
+  - matplotlib
+  - pandas
+  - geopandas
+  - shapely
+  - scipy
+  - jupyterlab 
+  - notebook
+  - h5netcdf
+  - netcdf4
+  - ipyleaflet
+  - hvplot
+  - pip
+  - pip:
+    - openeo
