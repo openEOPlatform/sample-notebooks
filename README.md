@@ -10,7 +10,7 @@ This repository contains Python Jupyter Notebooks and R Notebooks, showing inter
 
 **Important: You need to be an early adopter to run the code provided here, please follow this link for the instructions: https://openeo.cloud/early-adopters/**
 
-**After becoming an Early Adopter, please use the forum https://discuss.eodc.eu/t to ask us any question related to the usage of the platform.**
+**After becoming an Early Adopter, please use the forum https://discuss.eodc.eu/ to ask us any question related to the usage of the platform.**
 ## Python
 ### openEO Platform Jupyter Hub
 
